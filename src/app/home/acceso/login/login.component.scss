@@ -1,0 +1,21 @@
+
+.grid
+{
+    display: grid;
+    grid-template-columns:1fr;
+    grid-template-rows: 600px;
+}
+.item1{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-grid{
+    width: 350px; height: 400px;
+}
+
+.m-top{
+    margin-top: 3rem;
+}
+
+

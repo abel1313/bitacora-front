@@ -1,0 +1,10 @@
+<div class="row">
+    <div class="col-8 d-flex justify-content-start">
+        <img *ngIf="usuario.usuario !== '' " [src]="imgIndra" alt="Imagen">
+    </div>
+    <div class="col-4 d-flex justify-content-center" >
+        <strong style="font-size: 2rem;" *ngIf="usuario !== null ">
+            {{usuario.usuario}}
+        </strong>
+    </div>
+</div>
