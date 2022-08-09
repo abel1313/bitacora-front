@@ -52,23 +52,33 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.subscription.add(
         this.service.solicitudPost<IUsuario,IUsuarioDto>(urlServer.LOGIN, usu)
         .subscribe((res: IUsuarioDto) => {
-          Swal.fire({
-            title: `Bienvenido ${res.usuario}`,
-            text: '',
-            imageUrl: 'assets/image/fondo.jpg',
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: 'Bienvenido',
-            showConfirmButton: false
-          });
+
+          if( res.id != 0 ){
+            Swal.fire({
+              title: `Bienvenido ${res.usuario}`,
+              text: '',
+              imageUrl: 'assets/image/fondo.jpg',
+              imageWidth: 400,
+              imageHeight: 200,
+              imageAlt: 'Bienvenido',
+              showConfirmButton: false
+            });
+
+          
+            this._ngZone.run(() => this.router.navigateByUrl('bitacora'));
+            this.service.usuarioDto.emit(res);
+            sessionStorage.setItem('sessionUsuario', JSON.stringify(res));
+
+          }else{
+            Swal.fire({
+              icon: 'info',
+              title: 'Mensaje',
+              text: 'El usuario no se encontro, intente de nuevo' ,
+              showConfirmButton: false
+            });
+          }
 
           this.mostrarLoading = false;
-          this._ngZone.run(() => this.router.navigateByUrl('bitacora'));
-          this.service.usuarioDto.emit(res);
-          sessionStorage.setItem('sessionUsuario', JSON.stringify(res));
-         
-
-
         }, (error: any) => {
           this.mostrarLoading = false;
           Swal.fire({

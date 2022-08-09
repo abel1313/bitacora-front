@@ -1,5 +1,5 @@
 import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { urlServer } from 'src/app/models/datos.enum';
@@ -30,6 +30,11 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     usuario: {
       usuario: ''
     }
+  }
+
+  horasValidas: IValidarHora = {
+    horasValidas: false,
+    mensaje: ''
   }
 
 
@@ -107,18 +112,39 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
         [
           Validators.required,
           Validators.pattern('[1-9]'),
-          ValidatorsForm.validarHora
+          ValidatorsForm.validarHora,
+
         ]
       ],
       notas: ['', [Validators.required]],
     });
   }
 
+  keyValidar(hora: string) {
+    this.formBitacora.updateValueAndValidity();
+    const expresion = '[1-8]';
+    const reg = new RegExp(expresion);
+    if (hora! && reg.test(hora) && this.formBitacora.get('fecha').value !== '') {
+      this.horasValida(parseInt(hora));
+    }
+
+  }
+  updateDate(): void {
+    this.formBitacora.updateValueAndValidity();
+  }
   changeFolio(): void {
     const crt = this.comboCr.find(f => f.idCr == this.formBitacora.get('cr').value);
-    this.folio = crt.folioAsignacion !== 0 ? `Folio ${crt.folioAsignacion}` : '';
+    this.folio = crt.folioAsignacion !== '' ? `Folio ${crt.folioAsignacion}` : '';
   }
+
   guardarRegistro(): void {
+
+
+    this.horasValida(this.formBitacora.get('hora').value);
+
+setTimeout(() => {
+  
+  if( !this.horasValidas.horasValidas ){
     this.guardar = this.formBitacora.value;
     this.guardar.fecha = this.convertDate(new Date(this.guardar.fecha));
     this.guardar.colaborador = this.formBitacora.get('colaborador').value;
@@ -127,38 +153,43 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.mostrarLoading = true;
     this.subscription.add(
       this.service.solicitudPost<IGuardar, IRespuestGenerica<IActividades>>
-      (urlServer.GUARDAR_REGISTRO, this.guardar).subscribe((res) => {
-        if( res.code === 201){
+        (urlServer.GUARDAR_REGISTRO, this.guardar).subscribe((res) => {
+          if (res.code === 201) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Mensaje',
+              text: res.mensaje,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'success',
+              title: 'Mensaje',
+              text: res.mensaje,
+              showConfirmButton: false
+            });
+          }
+
+          this.resetForm();
+          this.mostrarLoading = false;
+        }, (error => {
+
           Swal.fire({
-            icon: 'success',
+            icon: 'error',
             title: 'Mensaje',
-            text: res.mensaje,
+            text: 'Ocurrío un error, intente de nuevo',
             showConfirmButton: false
           });
-        }else{
-          Swal.fire({
-            icon: 'success',
-            title: 'Mensaje',
-            text: res.mensaje,
-            showConfirmButton: false
-          });
-        }
-
-        this.resetForm();
-        this.mostrarLoading = false;
-      }, (error => {
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Mensaje',
-          text: 'Ocurrío un error, intente de nuevo',
-          showConfirmButton: false
-        });
-        this.mostrarLoading = false;
-        this.resetForm();
-        console.log(error, " Errror ");
-      }))
+          this.mostrarLoading = false;
+          this.resetForm();
+          console.log(error, " Errror ");
+        }))
     );
+  }
+
+}, 3000);
+
+
     console.log(this.guardar);
 
   }
@@ -183,7 +214,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
           });
           this.descargarExcel(this.base64ToBlob(res.base64Dto), res.nombreDocumento, "xls");
 
-        }else{
+        } else {
           Swal.fire({
             icon: 'info',
             title: 'Mensaje',
@@ -310,23 +341,66 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     link.click();
   }
 
-  public base64ToBlob(b64Data, sliceSize=512) {
+  public base64ToBlob(b64Data, sliceSize = 512) {
     let byteCharacters = atob(b64Data); //data.file there
     let byteArrays = [];
     for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        let slice = byteCharacters.slice(offset, offset + sliceSize);
-    
-        let byteNumbers = new Array(slice.length);
-        for (var i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-        }
-        let byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
+      let slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      let byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      let byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
     }
-    return new Blob(byteArrays, {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    }
+    return new Blob(byteArrays, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+  private horasValida(horas: number): void {
+
+    const enviarDatos = {
+      horas,
+      fecha: this.formBitacora.get('fecha').value,
+      usuarioDTO: this.usuario
+    };
+
+    this.subscription.add(
+      this.service.solicitudPost<IHora, IValidarHora>(urlServer.HORAS_VALIDAS, enviarDatos)
+        .subscribe((res) => {
+            this.horasValidas = res;
+          if (this.horasValidas.horasValidas) {
+            console.log("******************************************** legando ");
+            this.formBitacora.controls['hora'].setValidators([this.validH])
+            this.formBitacora.controls['hora'].updateValueAndValidity();
+          }else{
+            this.formBitacora.controls['hora'].clearValidators();
+          }
+          
+          console.log(res, " RESSSSSSSSSSSSSSSSSSSS ", this.formBitacora);
+        }, (err) => {
+          console.log(err, " ERRRRROOOOOO ");
+        })
+    );
+  }
+
+  public validH(): ValidationErrors | null {
+    console.log("******************************************** legando ");
+    return { mostrarHoraInvalida: true };
+  }
 
 
+}
+
+interface IHora {
+  horas: number;
+  fecha: string;
+  usuarioDTO: IUsuarioDto;
+
+}
+interface IValidarHora {
+  horasValidas: boolean;
+  mensaje: string;
 }
 
 

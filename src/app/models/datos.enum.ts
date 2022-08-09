@@ -12,4 +12,5 @@ export enum urlServer{
     GUARDAR_REGISTRO = 'registro-actividade/v1/guardar',
 
     GENERAR_REPORTE = 'registro-actividade/v1/generarReporte',
+    HORAS_VALIDAS = 'registro-actividade/v1/validar-horas',
 }

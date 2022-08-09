@@ -17,7 +17,7 @@
                                     </strong>
                                 </label>
                                 <input type="text" class="form-control mt-3" id="usuario"
-                                    placeholder="Ingrese su nombre completo" formControlName="usuario"
+                                    placeholder="Apeido Materno, Paterno y Nombre" formControlName="usuario"
                                     [value]="formUsuario.get('usuario').value | uppercase ">
 
                                 <div *ngIf="formUsuario.get('usuario').invalid && 
@@ -34,29 +34,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label for="usuario" class="d-flex justify-content-center">
-                                    <strong >
-                                        Contraseña
-                                    </strong>
-                                </label>
-                                <input type="password" class="form-control" placeholder="Ingrese su Contraseña"
-                                    formControlName="contrasena">
-                                <div *ngIf="formUsuario.get('contrasena').invalid && 
-                                    (formUsuario.get('contrasena').dirty || formUsuario.get('contrasena').touched)"
-                                    class="d-flex justify-content-center text-danger">
-                                    <div *ngIf="formUsuario.get('contrasena')?.errors?.required ">
-                                        *Este campo es requerido.
-                                    </div>
-                                    <div *ngIf="formUsuario.get('contrasena')?.errors?.minlength ">
-                                        *La longitud mínima es de 2.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
 
                     <div class="row p-3">
                         <div class="col-12 d-flex justify-content-end">

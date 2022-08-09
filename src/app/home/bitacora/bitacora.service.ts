@@ -44,7 +44,7 @@ export class BitacoraService extends ServiceGenericoService {
     const cr = {
       idCr: 0,
       nombreCrNombreAsignacion: "Seleccione una opción",
-      folioAsignacion: 0
+      folioAsignacion: ""
     }
     datos.unshift(cr);
     return datos;

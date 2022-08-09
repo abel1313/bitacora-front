@@ -1,5 +1,5 @@
 <div class="row mt-4">
-    <div [ngClass]="mostraBoton.mostrarBoton ? 'col-7 offset-1' : 'col-7 mx-auto' " >
+    <div [ngClass]="mostraBoton.mostrarBoton ? 'col-7 offset-1' : 'col-7 mx-auto' ">
         <form [formGroup]="formBitacora" (ngSubmit)="guardarRegistro();">
             <div class="card">
                 <div class="card-header">
@@ -14,7 +14,8 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="colaborador">Colaborador</label>
-                                <input type="text" class="form-control" formControlName="colaborador" [value]="nombreUsuario">
+                                <input type="text" class="form-control" formControlName="colaborador"
+                                    [value]="nombreUsuario">
                                 <div *ngIf="formBitacora.get('colaborador').invalid && 
                                 (formBitacora.get('colaborador').dirty || formBitacora.get('colaborador').touched)"
                                     class="d-flex justify-content-center text-danger">
@@ -31,7 +32,8 @@
                             <label for="actividad">Actividad</label>
                             <select class="form-control" formControlName="actividad">
                                 <ng-container *ngFor="let actividad of iActividades">
-                                    <option class="form-control" selected [value]="actividad.id">{{actividad.nombre}}</option>
+                                    <option class="form-control" selected [value]="actividad.id">{{actividad.nombre}}
+                                    </option>
                                 </ng-container>
                             </select>
                             <div *ngIf="formBitacora.get('actividad').invalid && 
@@ -67,7 +69,7 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="colaborador">Fecha</label>
-                                <input type="date" class="form-control" formControlName="fecha">
+                                <input type="date" class="form-control" formControlName="fecha" (change)="updateDate();">
                                 <div *ngIf="formBitacora.get('fecha').invalid && 
                                 (formBitacora.get('fecha').dirty || formBitacora.get('fecha').touched)"
                                     class=" text-danger">
@@ -92,7 +94,8 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label for="hora">Hora</label>
-                                <input type="text" class="form-control" formControlName="hora">
+                                <input type="text" class="form-control" #name formControlName="hora"
+                                (keyup)="keyValidar(name.value);">
                                 <div *ngIf="formBitacora.get('hora').invalid && 
                                 (formBitacora.get('hora').dirty || formBitacora.get('hora').touched)"
                                     class=" text-danger">
@@ -107,9 +110,14 @@
                                     </div>
 
                                     <div *ngIf="formBitacora.get('hora')?.errors?.horaInvalida "
-                                    class="d-flex justify-content-center">
-                                    *No puedes ingresar más de 8 horas diarias.
-                                </div>
+                                        class="d-flex justify-content-center">
+                                        *No puedes ingresar más de 8 horas diarias.
+                                    </div>
+
+                                    <div *ngIf="formBitacora.get('hora')?.errors?.mostrarHoraInvalida "
+                                        class="d-flex justify-content-center">
+                                        {{ horasValidas.mensaje }}
+                                    </div>
 
                                 </div>
                             </div>
@@ -118,7 +126,7 @@
                             <div class="form-group">
                                 <label for="exampleFormControlTextarea1">Notas</label>
                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                formControlName="notas"></textarea>
+                                    formControlName="notas"></textarea>
                                 <div *ngIf="formBitacora.get('notas').invalid && 
                                 (formBitacora.get('notas').dirty || formBitacora.get('notas').touched)"
                                     class=" text-danger">
@@ -146,22 +154,23 @@
         </form>
     </div>
 
-        <div *ngIf="mostraBoton.mostrarBoton" class="col-4">
-                <form [formGroup]="formReporte" (ngSubmit)="obtenerMes();">
-                    <div class="row">
-                        <div class="col-3">
-                            <button class="btn btn-secondary" type="submit" >
-                                EXPORTAR
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <select class="form-control text-center" formControlName="seleccionarMes"  >
-                                    <option *ngFor="let item of mostraBoton.mesesDto" [value]="item.index"> {{item.nombreMes}} </option>
-                            </select>
-                        </div>
-                    </div> 
-                </form>
-        </div>
+    <div *ngIf="mostraBoton.mostrarBoton" class="col-4">
+        <form [formGroup]="formReporte" (ngSubmit)="obtenerMes();">
+            <div class="row">
+                <div class="col-3">
+                    <button class="btn btn-secondary" type="submit">
+                        EXPORTAR
+                    </button>
+                </div>
+                <div class="col-6">
+                    <select class="form-control text-center" formControlName="seleccionarMes">
+                        <option *ngFor="let item of mostraBoton.mesesDto" [value]="item.index"> {{item.nombreMes}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 
