@@ -130,7 +130,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
   }
   updateDate(): void {
-    this.formBitacora.updateValueAndValidity();
+    this.horasValida(this.formBitacora.get('hora').value);
   }
   changeFolio(): void {
     const crt = this.comboCr.find(f => f.idCr == this.formBitacora.get('cr').value);
@@ -140,16 +140,10 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   guardarRegistro(): void {
 
 
-    this.horasValida(this.formBitacora.get('hora').value);
-
-setTimeout(() => {
-  
-  if( !this.horasValidas.horasValidas ){
     this.guardar = this.formBitacora.value;
     this.guardar.fecha = this.convertDate(new Date(this.guardar.fecha));
     this.guardar.colaborador = this.formBitacora.get('colaborador').value;
     this.guardar.usuario = this.usuario;
-    console.log(this.guardar, " Save ");
     this.mostrarLoading = true;
     this.subscription.add(
       this.service.solicitudPost<IGuardar, IRespuestGenerica<IActividades>>
@@ -172,6 +166,7 @@ setTimeout(() => {
 
           this.resetForm();
           this.mostrarLoading = false;
+          this.folio = '';
         }, (error => {
 
           Swal.fire({
@@ -182,15 +177,8 @@ setTimeout(() => {
           });
           this.mostrarLoading = false;
           this.resetForm();
-          console.log(error, " Errror ");
         }))
     );
-  }
-
-}, 3000);
-
-
-    console.log(this.guardar);
 
   }
 
@@ -201,10 +189,9 @@ setTimeout(() => {
       index: mes.seleccionarMes,
       usuario: this.usuario
     }
-    console.log(this.generarReporte);
     this.subscription.add(
       this.service.solicitudPost<IGenerarReporte, any>(urlServer.GENERAR_REPORTE, this.generarReporte).subscribe((res: any) => {
-        console.log(res, " Ressssss ");
+       
         if (res.base64Dto!) {
           Swal.fire({
             icon: 'success',
@@ -225,7 +212,6 @@ setTimeout(() => {
 
 
       }, (error: any) => {
-        console.log("ERRR ", error);
         Swal.fire({
           icon: 'error',
           title: 'Mensaje',
@@ -235,8 +221,6 @@ setTimeout(() => {
       })
     );
 
-
-    console.log(this.generarReporte);
   }
   ngOnDestroy(): void {
     if (this.subscription != null) {
@@ -257,8 +241,6 @@ setTimeout(() => {
     }
 
 
-
-    console.log(this.usuario);
   }
 
   private obtenerActividad(): void {
@@ -267,7 +249,6 @@ setTimeout(() => {
       this.service.getDataActividadDto(urlServer.COMBO_OBTENER_ACTIVIDADES).subscribe((actividades) => {
         this.iActividades = actividades;
       }, (err) => {
-        console.log(err, " Error ");
         Swal.fire({
           icon: 'error',
           title: 'Mensaje',
@@ -283,7 +264,6 @@ setTimeout(() => {
       this.service.getDataCrsDto(urlServer.COMBO_OBTENER_CRS).subscribe((crs) => {
         this.comboCr = crs;
       }, (error) => {
-        console.log(error);
         Swal.fire({
           icon: 'error',
           title: 'Mensaje',
@@ -299,7 +279,6 @@ setTimeout(() => {
       this.service.solicitudPost<IUsuarioDto, IMostrarReporte>(urlServer.MOSTRAR_BOTON_COMBO, this.usuario).subscribe((res) => {
         this.mostraBoton = res;
       }, (error) => {
-        console.log(error);
         Swal.fire({
           icon: 'error',
           title: 'Mensaje',
@@ -370,23 +349,19 @@ setTimeout(() => {
         .subscribe((res) => {
             this.horasValidas = res;
           if (this.horasValidas.horasValidas) {
-            console.log("******************************************** legando ");
-            this.formBitacora.controls['hora'].setValidators([this.validH])
+            this.formBitacora.controls['hora'].setValidators(this.validH )
             this.formBitacora.controls['hora'].updateValueAndValidity();
           }else{
             this.formBitacora.controls['hora'].clearValidators();
+            this.formBitacora.controls['hora'].updateValueAndValidity();
           }
           
-          console.log(res, " RESSSSSSSSSSSSSSSSSSSS ", this.formBitacora);
-        }, (err) => {
-          console.log(err, " ERRRRROOOOOO ");
         })
     );
   }
 
   public validH(): ValidationErrors | null {
-    console.log("******************************************** legando ");
-    return { mostrarHoraInvalida: true };
+    return this.horasValidas! && !this.horasValidas.horasValidas ? null : { mostrarHoraInvalida: true };
   }
 
 

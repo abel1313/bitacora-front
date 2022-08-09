@@ -87,7 +87,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             text: error.error.message ,
             showConfirmButton: false
           });
-          console.log(error, "Error");
         })
       );
 

@@ -35,7 +35,6 @@ export abstract class ServiceGenericoService {
   }
   public solicitudPost<T,R>(urlServicio: string, data: T): Observable<R> {
     const urlSer = `${this.url}/${urlServicio}`;
-    console.log(urlSer, " Servicio");
     return this.http.post<R>(urlSer, data, this.httpOptions).pipe(
       retry(3),
       catchError(this.handleError)

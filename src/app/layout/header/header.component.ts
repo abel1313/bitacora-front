@@ -25,8 +25,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.obtenerNombreUsuario();
 
     this.obtenerUsuario();
-
-    console.log(this.usuario, " Usuario ");
   }
 
 
