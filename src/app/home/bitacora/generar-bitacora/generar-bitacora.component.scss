@@ -1,0 +1,47 @@
+
+.ntn-save{
+    font-family: 'Tiro Gurmukhi', serif;
+    background-color: #78c5b5;
+    border: none;
+}
+
+
+.opacity-style{
+    border-radius: 7px;
+    background-color: white;
+    opacity: 0.7;
+}
+
+.card-personalizada{
+    background-color: cadetblue;
+    height: 90vh;
+    width: 95%;
+    background: none;
+    
+}
+.card-personalizada-grid{
+    
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+}
+
+.item-1{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
+.item-2{
+    height: 100%;
+}
+
+.form-grid{
+    display: grid; 
+    grid-template-columns: 150px 1fr;
+    margin-top: 110px;
+    
+}
+

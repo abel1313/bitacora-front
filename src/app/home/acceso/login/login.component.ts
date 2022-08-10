@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { urlServer } from 'src/app/models/datos.enum';
-import { RemoverSesion } from 'src/app/models/session.models';
 import { ServiceGenericoService } from 'src/app/services/service-generico.service';
 import Swal from 'sweetalert2';
+import { ValidatorsForm } from '../../bitacora/generar-bitacora/models';
 import { IUsuario, IUsuarioDto } from '../models';
 
 @Component({
@@ -16,6 +16,8 @@ import { IUsuario, IUsuarioDto } from '../models';
 export class LoginComponent implements OnInit, OnDestroy {
   subscription: Subscription;
   mostrarLoading = false;
+  cambiarStyleLogin =  false;
+
   formUsuario: FormGroup;
   iUsuario: IUsuario;
   constructor(
@@ -34,21 +36,33 @@ export class LoginComponent implements OnInit, OnDestroy {
       usuario: ['',
         [
           Validators.required,
-          Validators.minLength(2)
+          Validators.minLength(2),
+          ValidatorsForm.validarCorreo
         ]
       ]
     });
   }
 
-  private convertirMayusculas(val: string ): string{
-    return val.toUpperCase()
+  loginCuadro(): void{
+    this.cambiarStyleLogin = true;
+    console.log("Dsite ", this.cambiarStyleLogin);
   }
   accederSIstema(): void {
 
+    this.cambiarStyleLogin = false;
     this.mostrarLoading = true;
-    const usu = {
-      usuario: this.formUsuario.get('usuario').value.toUpperCase()
+    
+    let usu: IUsuario = {
+      usuario: '',
+      correo: ''
     }
+    const reg = RegExp('[@]');
+    if( !reg.test(this.formUsuario.get('usuario').value) ){
+      usu.usuario = this.formUsuario.get('usuario').value.toUpperCase();
+    }else{
+      usu.correo = this.formUsuario.get('usuario').value.toUpperCase()
+    }
+
       this.subscription.add(
         this.service.solicitudPost<IUsuario,IUsuarioDto>(urlServer.LOGIN, usu)
         .subscribe((res: IUsuarioDto) => {

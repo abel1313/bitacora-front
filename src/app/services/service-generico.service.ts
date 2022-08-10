@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { IUsuario, IUsuarioDto } from '../home/acceso/models';
 import { IGuardar } from '../home/bitacora/generar-bitacora/models';
 
@@ -13,7 +14,7 @@ export abstract class ServiceGenericoService {
   mostrarFondo = new EventEmitter<boolean>();
   usuarioDto = new EventEmitter<IUsuarioDto>();
 
-  protected readonly url = 'http://127.0.0.1:8080/minsait';
+  protected readonly url = environment.url;
   protected readonly httpOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json',

@@ -28,3 +28,16 @@ IMostrarReporte
 export {
     IGenerarReporte
 } from './IGenerarReporte';
+export {
+    IMensajePersonalizado,
+MensajesPersonalizados
+} from './mensajes-personalizados.model';
+
+export {
+    IMostrarFecha
+} from './IMostrarFecha';
+
+
+
+
+

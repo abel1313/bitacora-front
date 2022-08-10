@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { urlServer } from 'src/app/models/datos.enum';
 import { IRespuestGenerica } from 'src/app/models/IRespuestaGenerica';
+import { ICssButton, IMensajeMostrarSwal, MensajeSwal } from 'src/app/models/mensaje.mode';
 import { ServiceGenericoService } from 'src/app/services/service-generico.service';
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
 import { IUsuario, IUsuarioDto } from '../../acceso/models';
 import { BitacoraService } from '../bitacora.service';
-import { IActividades, ICrDTO, IGenerarReporte, IGuardar, IMesesDTO, IMostrarReporte, IRegistoActividad, ValidatorsForm } from './models';
+import { IActividades, ICrDTO, IGenerarReporte, IGuardar, IMesesDTO, IMostrarFecha, IMostrarReporte, IRegistoActividad, MensajesPersonalizados, ValidatorsForm } from './models';
 
 @Component({
   selector: 'app-generar-bitacora',
@@ -37,6 +38,12 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     mensaje: ''
   }
 
+  horasFaltanter: IValidarHora = {
+    horasValidas: false,
+    mensaje: ''
+  }
+
+
 
   valorMes: IMesesDTO = {
     diasMes: 0,
@@ -53,6 +60,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
   mostrarReporte = false;
 
+  mensaje: MensajesPersonalizados;
+
   formBitacora: FormGroup;
 
   formReporte: FormGroup;
@@ -63,6 +72,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     private readonly _ngZone: NgZone
   ) {
     this.subscription = new Subscription();
+    this.mensaje = new MensajesPersonalizados();
     this.obtenerNombreUsuario();
 
     this.obtenerActividad();
@@ -102,13 +112,13 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
         ]
       ],
       fecha:
-        ['',
-          [
-            Validators.required,
-            ValidatorsForm.validarFecha
-          ]
+        [this.fechaDia(),
+        [
+          Validators.required,
+          ValidatorsForm.validarFecha
+        ]
         ],
-      hora: ['',
+      hora: [1,
         [
           Validators.required,
           Validators.pattern('[1-9]'),
@@ -118,18 +128,54 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
       ],
       notas: ['', [Validators.required]],
     });
+
   }
 
   keyValidar(hora: string) {
     this.formBitacora.updateValueAndValidity();
     const expresion = '[1-8]';
     const reg = new RegExp(expresion);
+    console.log("fechas   ",this.formBitacora.get('fecha').value !== '');
     if (hora! && reg.test(hora) && this.formBitacora.get('fecha').value !== '') {
       this.horasValida(parseInt(hora));
+      console.log("Llegando ");
     }
 
   }
   updateDate(): void {
+
+    const mostrar = {
+      fecha: this.formBitacora.get('fecha').value,
+      usuarioDto: this.usuario
+    }
+    this.subscription.add(
+      this.service.solicitudPost<IMostrarFecha, IValidarHora>(urlServer.HORAS_FALTANTES,mostrar).subscribe((respuesta)=>{
+        console.log(respuesta, " Respuesta ");
+        this.horasFaltanter = respuesta;
+        if ( this.horasFaltanter.horasValidas ){
+          Swal.fire({
+            icon: 'info',
+            title: 'Mensaje',
+            text: this.horasFaltanter.mensaje,
+            showConfirmButton: false
+          });
+          
+        }else{
+          Swal.fire({
+            icon: 'warning',
+            title: 'Mensaje',
+            text: this.horasFaltanter.mensaje,
+            showConfirmButton: false
+          });
+        }
+     
+      },(err)=>
+      {
+        console.log(err)
+      })
+    );
+
+
     this.horasValida(this.formBitacora.get('hora').value);
   }
   changeFolio(): void {
@@ -138,47 +184,11 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   }
 
   guardarRegistro(): void {
+    MensajeSwal.mensajeResult(this.mensaje.mensajePerso()).then((mensajeCorrecto: boolean) => {
+      this.guardarActividad();
+    }).catch((mensajeCancelado: boolean) => {
 
-
-    this.guardar = this.formBitacora.value;
-    this.guardar.fecha = this.convertDate(new Date(this.guardar.fecha));
-    this.guardar.colaborador = this.formBitacora.get('colaborador').value;
-    this.guardar.usuario = this.usuario;
-    this.mostrarLoading = true;
-    this.subscription.add(
-      this.service.solicitudPost<IGuardar, IRespuestGenerica<IActividades>>
-        (urlServer.GUARDAR_REGISTRO, this.guardar).subscribe((res) => {
-          if (res.code === 201) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Mensaje',
-              text: res.mensaje,
-              showConfirmButton: false
-            });
-          } else {
-            Swal.fire({
-              icon: 'success',
-              title: 'Mensaje',
-              text: res.mensaje,
-              showConfirmButton: false
-            });
-          }
-
-          this.resetForm();
-          this.mostrarLoading = false;
-          this.folio = '';
-        }, (error => {
-
-          Swal.fire({
-            icon: 'error',
-            title: 'Mensaje',
-            text: 'Ocurrío un error, intente de nuevo',
-            showConfirmButton: false
-          });
-          this.mostrarLoading = false;
-          this.resetForm();
-        }))
-    );
+    });
 
   }
 
@@ -191,7 +201,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     }
     this.subscription.add(
       this.service.solicitudPost<IGenerarReporte, any>(urlServer.GENERAR_REPORTE, this.generarReporte).subscribe((res: any) => {
-       
+
         if (res.base64Dto!) {
           Swal.fire({
             icon: 'success',
@@ -241,6 +251,54 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     }
 
 
+  }
+
+  private guardarActividad(): void{
+    this.guardar = this.formBitacora.value;
+    this.guardar.fecha = this.convertDate(new Date(this.guardar.fecha));
+    this.guardar.colaborador = this.formBitacora.get('colaborador').value;
+    this.guardar.usuario = this.usuario;
+
+
+    this.mostrarLoading = true;
+    this.subscription.add(
+      this.service.solicitudPost<IGuardar, IRespuestGenerica<IActividades>>
+        (urlServer.GUARDAR_REGISTRO, this.guardar).subscribe((res) => {
+          if (res.code === 201) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Mensaje',
+              text: res.mensaje,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'info',
+              title: 'Mensaje',
+              text: res.mensaje,
+              showConfirmButton: false
+            });
+          }
+
+          this.resetForm();
+          this.mostrarLoading = false;
+          this.folio = '';
+          this.horasFaltanter = {
+            horasValidas: false,
+            mensaje: ''
+          }
+        }, (error => {
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Mensaje',
+            text: 'Ocurrío un error, intente de nuevo',
+            showConfirmButton: false
+          });
+          this.mostrarLoading = false;
+          this.resetForm();
+        }))
+    );
   }
 
   private obtenerActividad(): void {
@@ -294,6 +352,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.formBitacora.get('colaborador').setValue(this.usuario.usuario);
     this.formBitacora.get('actividad').setValue(0);
     this.formBitacora.get('cr').setValue(0);
+    this.formBitacora.get('fecha').setValue(this.fechaDia());
   }
   private convertDate(fecha: Date): string {
     const dd = fecha.getUTCDate() > 9 ? fecha.getUTCDate() : `0${fecha.getUTCDate()}`;
@@ -312,7 +371,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     const fileUrl = window.URL.createObjectURL(blob);
     this.download(fileUrl, nombreDocumento, ext);
   }
-  download(base64String: string, fileName: string, ext: string) {
+  private download(base64String: string, fileName: string, ext: string) {
     const source = `${base64String}`;
     const link = document.createElement("a");
     link.href = source;
@@ -320,7 +379,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     link.click();
   }
 
-  public base64ToBlob(b64Data, sliceSize = 512) {
+  private base64ToBlob(b64Data, sliceSize = 512) {
     let byteCharacters = atob(b64Data); //data.file there
     let byteArrays = [];
     for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
@@ -347,15 +406,14 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.service.solicitudPost<IHora, IValidarHora>(urlServer.HORAS_VALIDAS, enviarDatos)
         .subscribe((res) => {
-            this.horasValidas = res;
+          this.horasValidas = res;
           if (this.horasValidas.horasValidas) {
-            this.formBitacora.controls['hora'].setValidators(this.validH )
-            this.formBitacora.controls['hora'].updateValueAndValidity();
-          }else{
+            this.formBitacora.controls['hora'].setValidators(this.validH);
+          } else {
             this.formBitacora.controls['hora'].clearValidators();
-            this.formBitacora.controls['hora'].updateValueAndValidity();
           }
-          
+          this.formBitacora.controls['hora'].updateValueAndValidity();
+
         })
     );
   }
@@ -363,6 +421,15 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   public validH(): ValidationErrors | null {
     return this.horasValidas! && !this.horasValidas.horasValidas ? null : { mostrarHoraInvalida: true };
   }
+
+  private fechaDia(): string {
+    const fecha = new Date();
+    const dd = fecha.getDate() > 9 ? fecha.getDate() : `0${fecha.getDate()}`;
+    const MM = (fecha.getMonth() + 1) > 9 ? (fecha.getMonth() + 1) : `0${(fecha.getMonth() + 1)}`;
+    const yyyy = fecha.getFullYear();
+    return `${yyyy}-${MM}-${dd}`
+  }
+
 
 
 }

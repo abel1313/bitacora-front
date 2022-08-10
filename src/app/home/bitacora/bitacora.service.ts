@@ -25,7 +25,7 @@ export class BitacoraService extends ServiceGenericoService {
   private agregarSelectActividad(datos: Array<IActividades>):Array<IActividades>{
     const act = {
       id: 0,
-      nombre: "Seleccione una opción1",
+      nombre: "Seleccione una opción",
     }
     datos.unshift(act);
     return datos;

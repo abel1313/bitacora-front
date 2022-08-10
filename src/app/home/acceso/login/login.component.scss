@@ -12,11 +12,34 @@
 }
 .card-grid{
     width: 350px; 
-    height: 400px;
+    height: 250px;
+}
+.opacity-style{
+    border-radius: 7px;
+    background-color: white;
+    opacity: 0.9;
+}
+.sin-opacity-style{
+    border-radius: 7px;
+    background-color: white;
 }
 
 .m-top{
-    margin-top: 3rem;
+    margin-top: 1.5rem;
+}
+h4{
+    font-family: 'Rubik Dirt', cursive;
+    color: #000000;
+}
+.nombre{
+    font-family: 'Bebas Neue', cursive;
+}
+input{
+    font-family: 'Frank Ruhl Libre', serif;
+    text-align: center;
+}
+.login{
+    font-family: 'Tiro Gurmukhi', serif;
 }
 
 

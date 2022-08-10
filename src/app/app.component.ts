@@ -9,24 +9,15 @@ import { ServiceGenericoService } from './services/service-generico.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit, OnDestroy {
-  subscription: Subscription;
-  mostrarFondo: boolean;
-  cssFondo = '';
-  
-  url: Array<any>;
+export class AppComponent implements OnInit{
 
+  
+ 
   constructor(
-    private readonly service: ServiceGenericoService,
-    private readonly router: Router
     ) {
-    this.subscription = new Subscription();
-    this.mostrarFondo = false;
-    this.cambiarFondo();
-    this.cambiarFondoPantallas();
+
   }
 
-  title = 'bitacora-minsait';
 
 
 
@@ -34,22 +25,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
-  private cambiarFondo(): void{
-    this.mostrarFondo =  sessionStorage.getItem('sessionUsuario') !== null;
-  }
-  private cambiarFondoPantallas(): void{
-    this.service.mostrarFondo.subscribe((res: boolean)=>{
-      this.mostrarFondo = res;
-    },(err)=>{
 
-    });
-  }
-  ngOnDestroy(): void {
-    if( this.subscription != null ){
-      this.subscription.unsubscribe();
-    }
-    if( sessionStorage.getItem('sessionUsuario') !== null ){
-      RemoverSesion.removerSesion('sessionUsuario');
-    }
-  }
+ 
 }
