@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoadingComponent } from '../component/loading/loading.component';
 import { HttpClientModule } from '@angular/common/http';
-
+import {AutoCompleteModule} from 'angular-ngx-autocomplete';
 
 @NgModule({
   declarations: [
@@ -14,12 +14,14 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    AutoCompleteModule
   ],
   exports:[
     FormsModule,
     ReactiveFormsModule,
     LoadingComponent,
-    HttpClientModule
+    HttpClientModule,
+    AutoCompleteModule
   ]
 })
 export class SharedModule { }

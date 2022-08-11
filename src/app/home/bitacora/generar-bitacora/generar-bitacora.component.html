@@ -1,3 +1,25 @@
+
+<div >
+    <ngx-autocomplete  class="form-control"
+      [data]="comboCr"
+      [searchOnProperty]="keyword"
+      (selected)='selectEvent($event)'
+      (inputChanged)='onChangeSearch($event)'
+      (inputFocused)='onFocused($event)'
+      [itemTemplate]="itemTemplate"
+      [notFoundTemplate]="notFoundTemplate">                                 
+    </ngx-autocomplete>
+    
+    <ng-template #itemTemplate let-item>
+    <a [innerHTML]="item.nombreCrNombreAsignacion"></a>
+    </ng-template>
+    
+    <ng-template #notFoundTemplate let-notFound>
+    <div [innerHTML]="notFound"></div>
+    </ng-template>
+    </div>
+
+
 <div *ngIf="flase" class="row mt-4">
     <div [ngClass]="mostraBoton.mostrarBoton ? 'col-7 offset-1' : 'col-7 mx-auto' ">
         <form [formGroup]="formBitacora" (ngSubmit)="guardarRegistro();">
