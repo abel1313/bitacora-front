@@ -1,195 +1,177 @@
-
-<div >
-    <ngx-autocomplete  class="form-control"
-      [data]="comboCr"
-      [searchOnProperty]="keyword"
-      (selected)='selectEvent($event)'
-      (inputChanged)='onChangeSearch($event)'
-      (inputFocused)='onFocused($event)'
-      [itemTemplate]="itemTemplate"
-      [notFoundTemplate]="notFoundTemplate">                                 
-    </ngx-autocomplete>
-    
-    <ng-template #itemTemplate let-item>
-    <a [innerHTML]="item.nombreCrNombreAsignacion"></a>
-    </ng-template>
-    
-    <ng-template #notFoundTemplate let-notFound>
-    <div [innerHTML]="notFound"></div>
-    </ng-template>
-    </div>
-
-
 <div *ngIf="flase" class="row mt-4">
     <div [ngClass]="mostraBoton.mostrarBoton ? 'col-7 offset-1' : 'col-7 mx-auto' ">
         <form [formGroup]="formBitacora" (ngSubmit)="guardarRegistro();">
             <div class=" opacity-style">
-                <div class="">
-                    <div class=" text-center">
-                        <strong class="">
-                            Bitácora
-                        </strong>
+                <div class="row">
+                    <div class="col-12">
+                        <div class=" text-center">
+                            <strong class="">
+                                Bitácora
+                            </strong>
+                        </div>
                     </div>
                 </div>
-                <div class="">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="colaborador" class="label-family">Colaborador</label>
-                                <input type="text" class="form-control" formControlName="colaborador"
-                                    [value]="nombreUsuario">
-                                <div *ngIf="formBitacora.get('colaborador').invalid && 
-                                (formBitacora.get('colaborador').dirty || formBitacora.get('colaborador').touched)"
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="colaborador" class="label-family">Colaborador</label>
+                                    <input type="text" class="form-control" formControlName="colaborador"
+                                        [value]="nombreUsuario">
+                                    <div *ngIf="formBitacora.get('colaborador').invalid && 
+                                    (formBitacora.get('colaborador').dirty || formBitacora.get('colaborador').touched)"
+                                        class="d-flex justify-content-center text-danger">
+                                        <div *ngIf="formBitacora.get('colaborador')?.errors?.required ">
+                                            *Este campo es requerido.
+                                        </div>
+                                        <div *ngIf="formBitacora.get('colaborador')?.errors?.minlength ">
+                                            *La longitud mínima es de 2.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="actividad" class="label-family">Actividad</label>
+                                <select class="form-control" formControlName="actividad">
+                                    <ng-container *ngFor="let actividad of iActividades">
+                                        <option class="form-control" selected [value]="actividad.id">{{actividad.nombre}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                                <div *ngIf="formBitacora.get('actividad').invalid && 
+                                (formBitacora.get('actividad').dirty || formBitacora.get('actividad').touched)"
                                     class="d-flex justify-content-center text-danger">
-                                    <div *ngIf="formBitacora.get('colaborador')?.errors?.required ">
-                                        *Este campo es requerido.
-                                    </div>
-                                    <div *ngIf="formBitacora.get('colaborador')?.errors?.minlength ">
-                                        *La longitud mínima es de 2.
+                                    <div *ngIf="formBitacora.get('actividad')?.errors?.actividadInvalida ">
+                                        *Seleccione una actividad.
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <label for="actividad" class="label-family">Actividad</label>
-                            <select class="form-control" formControlName="actividad">
-                                <ng-container *ngFor="let actividad of iActividades">
-                                    <option class="form-control" selected [value]="actividad.id">{{actividad.nombre}}
-                                    </option>
-                                </ng-container>
-                            </select>
-                            <div *ngIf="formBitacora.get('actividad').invalid && 
-                            (formBitacora.get('actividad').dirty || formBitacora.get('actividad').touched)"
-                                class="d-flex justify-content-center text-danger">
-                                <div *ngIf="formBitacora.get('actividad')?.errors?.actividadInvalida ">
-                                    *Seleccione una actividad.
+    
+                        <div class="row mt-2 mt-3">
+                            <div class="col-6">
+                                <label for="cr" class="label-family">CR</label>
+                                <select class="form-control" formControlName="cr" (change)="changeFolio();">
+                                    <ng-container *ngFor="let cr of comboCr; let i= index">
+                                        <option [value]="cr.idCr">{{cr.nombreCrNombreAsignacion}}</option>
+                                    </ng-container>
+                                </select>
+                                <div *ngIf="formBitacora.get('cr').invalid && 
+                                (formBitacora.get('cr').dirty || formBitacora.get('cr').touched)"
+                                    class="d-flex justify-content-center text-danger">
+                                    <div *ngIf="formBitacora.get('cr')?.errors?.crInvalida ">
+                                        *Seleccione un CR.
+                                    </div>
+                                </div>
+                                <div *ngIf="folio !== '' " class="text-center">
+                                    {{folio}}
+                                </div>
+                            </div>
+    
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="colaborador" class="label-family">Fecha</label>
+                                    <input type="date" class="form-control" style="width: 100%;" formControlName="fecha"
+                                        (change)="updateDate();">
+                                    <div *ngIf="formBitacora.get('fecha').invalid && 
+                                    (formBitacora.get('fecha').dirty || formBitacora.get('fecha').touched)"
+                                        class=" text-danger">
+                                        <div *ngIf="formBitacora.get('fecha')?.errors?.required "
+                                            class="d-flex justify-content-center">
+                                            *El campo es requerido.
+                                        </div>
+    
+                                        <div *ngIf="formBitacora.get('fecha')?.errors?.fechaInvalida "
+                                            class="d-flex justify-content-center">
+                                            *Ingrese un dia de Lunes a Viernes.
+                                        </div>
+    
+                                    </div>
+                                </div>
+                            </div>
+    
+                        </div>
+    
+    
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="hora" class="label-family">Duración de actividad por hora</label>
+                                    <input type="text" class="form-control" #name formControlName="hora"
+                                        (keyup)="keyValidar(name.value);">
+                                    <div *ngIf="formBitacora.get('hora').invalid && 
+                                    (formBitacora.get('hora').dirty || formBitacora.get('hora').touched)"
+                                        class=" text-danger">
+                                        <div *ngIf="formBitacora.get('hora')?.errors?.required "
+                                            class="d-flex justify-content-center">
+                                            *El campo es requerido.
+                                        </div>
+    
+                                        <div *ngIf="formBitacora.get('hora')?.errors?.pattern "
+                                            class="d-flex justify-content-center">
+                                            *Ingrese solo números.
+                                        </div>
+    
+                                        <div *ngIf="formBitacora.get('hora')?.errors?.horaInvalida "
+                                            class="d-flex justify-content-center">
+                                            *No puedes ingresar más de 8 horas diarias.
+                                        </div>
+    
+                                        <div *ngIf="formBitacora.get('hora')?.errors?.mostrarHoraInvalida "
+                                            class="d-flex justify-content-center">
+                                            {{ horasValidas.mensaje }}
+                                        </div>
+    
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="exampleFormControlTextarea1" class="label-family">Notas</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                                        formControlName="notas"
+                                        placeholder="Breve y clara descripción de la actividad realizada"></textarea>
+                                    <div *ngIf="formBitacora.get('notas').invalid && 
+                                    (formBitacora.get('notas').dirty || formBitacora.get('notas').touched)"
+                                        class=" text-danger">
+                                        <div *ngIf="formBitacora.get('notas')?.errors?.required "
+                                            class="d-flex justify-content-center">
+                                            *El campo es requerido.
+                                        </div>
+                                    </div>
+    
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row mt-2 mt-3">
-                        <div class="col-6">
-                            <label for="cr" class="label-family">CR</label>
-                            <select class="form-control" formControlName="cr" (change)="changeFolio();">
-                                <ng-container *ngFor="let cr of comboCr; let i= index">
-                                    <option [value]="cr.idCr">{{cr.nombreCrNombreAsignacion}}</option>
-                                </ng-container>
-                            </select>
-                            <div *ngIf="formBitacora.get('cr').invalid && 
-                            (formBitacora.get('cr').dirty || formBitacora.get('cr').touched)"
-                                class="d-flex justify-content-center text-danger">
-                                <div *ngIf="formBitacora.get('cr')?.errors?.crInvalida ">
-                                    *Seleccione un CR.
-                                </div>
+    
+                        <div class="row mt-4">
+    
+                            <div class="col-8">
+                                <p class="text-danger">
+                                    {{horasFaltanter.mensaje}}
+                                </p>
+    
                             </div>
-                            <div *ngIf="folio !== '' " class="text-center">
-                                {{folio}}
+    
+                            <div class='col-4 d-flex justify-content-end'>
+                                <button class="btn btn-success ntn-save" [disabled]="formBitacora.invalid">
+    
+                                    GUARDAR
+    
+                                </button>
+    
                             </div>
                         </div>
-
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="colaborador" class="label-family">Fecha</label>
-                                <input type="date" class="form-control" formControlName="fecha"
-                                    (change)="updateDate();">
-                                <div *ngIf="formBitacora.get('fecha').invalid && 
-                                (formBitacora.get('fecha').dirty || formBitacora.get('fecha').touched)"
-                                    class=" text-danger">
-                                    <div *ngIf="formBitacora.get('fecha')?.errors?.required "
-                                        class="d-flex justify-content-center">
-                                        *El campo es requerido.
-                                    </div>
-
-                                    <div *ngIf="formBitacora.get('fecha')?.errors?.fechaInvalida "
-                                        class="d-flex justify-content-center">
-                                        *Ingrese un dia de Lunes a Viernes.
-                                    </div>
-
-                                </div>
+    
+    
+                        <div class="row">
+                            <div class="col-12">
+    
+                                <p class="text-danger">
+                                    Esta información no podrá ser editada después de guardar
+                                </p>
                             </div>
-                        </div>
-
-                    </div>
-
-
-                    <div class="row mt-3">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="hora" class="label-family">Duración de actividad por hora</label>
-                                <input type="text" class="form-control" #name formControlName="hora"
-                                    (keyup)="keyValidar(name.value);">
-                                <div *ngIf="formBitacora.get('hora').invalid && 
-                                (formBitacora.get('hora').dirty || formBitacora.get('hora').touched)"
-                                    class=" text-danger">
-                                    <div *ngIf="formBitacora.get('hora')?.errors?.required "
-                                        class="d-flex justify-content-center">
-                                        *El campo es requerido.
-                                    </div>
-
-                                    <div *ngIf="formBitacora.get('hora')?.errors?.pattern "
-                                        class="d-flex justify-content-center">
-                                        *Ingrese solo números.
-                                    </div>
-
-                                    <div *ngIf="formBitacora.get('hora')?.errors?.horaInvalida "
-                                        class="d-flex justify-content-center">
-                                        *No puedes ingresar más de 8 horas diarias.
-                                    </div>
-
-                                    <div *ngIf="formBitacora.get('hora')?.errors?.mostrarHoraInvalida "
-                                        class="d-flex justify-content-center">
-                                        {{ horasValidas.mensaje }}
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="exampleFormControlTextarea1" class="label-family">Notas</label>
-                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
-                                    formControlName="notas"
-                                    placeholder="Breve y clara descripción de la actividad realizada"></textarea>
-                                <div *ngIf="formBitacora.get('notas').invalid && 
-                                (formBitacora.get('notas').dirty || formBitacora.get('notas').touched)"
-                                    class=" text-danger">
-                                    <div *ngIf="formBitacora.get('notas')?.errors?.required "
-                                        class="d-flex justify-content-center">
-                                        *El campo es requerido.
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-
-                        <div class="col-8">
-                            <p class="text-danger">
-                                {{horasFaltanter.mensaje}}
-                            </p>
-
-                        </div>
-
-                        <div class='col-4 d-flex justify-content-end'>
-                            <button class="btn btn-success ntn-save" [disabled]="formBitacora.invalid">
-
-                                GUARDAR
-
-                            </button>
-
-                        </div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-12">
-
-                            <p class="text-danger">
-                                Esta información no podrá ser editada después de guardar
-                            </p>
                         </div>
                     </div>
 
@@ -269,7 +251,7 @@
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="colaborador" class="label-family">Fecha</label>
-                                <input type="date" class="form-control" formControlName="fecha"
+                                <input type="date" class="form-control" style="width: 10rem;" formControlName="fecha"
                                     (change)="updateDate();">
                                 <div *ngIf="formBitacora.get('fecha').invalid && 
                                 (formBitacora.get('fecha').dirty || formBitacora.get('fecha').touched)"
@@ -291,91 +273,121 @@
                     </div>
 
                     <div class="row mt-2 mt-3">
-                        <div class="col-4">
-                            <label for="cr" class="label-family">CR</label>
-                            <select class="form-control" formControlName="cr" (change)="changeFolio();">
-                                <ng-container *ngFor="let cr of comboCr; let i= index">
-                                    <option [value]="cr.idCr">{{cr.nombreCrNombreAsignacion}}</option>
-                                </ng-container>
-                            </select>
-                            <div *ngIf="formBitacora.get('cr').invalid && 
-                            (formBitacora.get('cr').dirty || formBitacora.get('cr').touched)"
-                                class="d-flex justify-content-center text-danger">
-                                <div *ngIf="formBitacora.get('cr')?.errors?.crInvalida ">
-                                    *Seleccione un CR.
-                                </div>
-                            </div>
-                            <div *ngIf="folio !== '' " class="text-center">
-                                {{folio}}
-                            </div>
-                        </div>
-
-
-                        <div class="col-4">
-                            <label for="cr" class="label-family">CR</label>
-                            <select class="form-control" formControlName="cr" (change)="changeFolio();">
-                                <ng-container *ngFor="let cr of comboCr; let i= index">
-                                    <option [value]="cr.idCr">{{cr.nombreCrNombreAsignacion}}</option>
-                                </ng-container>
-                            </select>
-                            <div *ngIf="formBitacora.get('cr').invalid && 
-                            (formBitacora.get('cr').dirty || formBitacora.get('cr').touched)"
-                                class="d-flex justify-content-center text-danger">
-                                <div *ngIf="formBitacora.get('cr')?.errors?.crInvalida ">
-                                    *Seleccione un CR.
-                                </div>
-                            </div>
-                            <div *ngIf="folio !== '' " class="text-center">
-                                {{folio}}
-                            </div>
-                        </div>
+                  
+                        <div class="col-4 style-auto">
+                            <label for="cr"> CR</label>
                         
+                            <ngx-autocomplete id="cr" 
+                            formControlName="cr"
+                            class="form-control"
+                            [data]="comboCr" [searchOnProperty]="keywordCr"
+                                (selected)='selectEventCr($event)' 
+                                (inputCleared)="inputClearedCr();"
+                                [itemTemplate]="itemTemplate"
+                                [notFoundTemplate]="notFoundTemplate"
+                                placeholder="Buscar CR">
+                            </ngx-autocomplete>
 
-                    </div>
+                            <ng-template #itemTemplate let-item>
+                                <a [innerHTML]="item.nombreCrNombreAsignacion"></a>
+                            </ng-template>
 
+                            <ng-template #notFoundTemplate let-notFound>
+                                <div [innerHTML]="notFound"></div>
+                            </ng-template>
 
-                    <div class="row mt-3">
-                        <div class="col-3">
+                            <div *ngIf="formBitacora.get('cr').invalid && 
+                            (formBitacora.get('cr').dirty || formBitacora.get('cr').touched)"
+                                class="d-flex justify-content-center text-danger">
+                                <div *ngIf="formBitacora.get('cr')?.errors?.crInvalida ">
+                                    *Seleccione un CR.
+                                </div>
+                            </div>
+                           
+
+                        </div>
+
+                        <div class="col-4">
+                            
+                            <label for="autocomplete"> Título CR</label>
+                            <ngx-autocomplete id="autocomplete"
+                            formControlName="tituloCr"
+                            class="form-control" [data]="autoCompeteAsignacion" 
+                            [searchOnProperty]="keywordAsignacion"
+                            (inputCleared)="inputClearedAsignacion();"
+                                (selected)='selectEventAsignacion($event)' [itemTemplate]="itemTemplateAsignacion"
+                                [notFoundTemplate]="notFoundTemplateAsignacion"
+                                placeholder="Buscar por Título">
+                            </ngx-autocomplete>
+
+                            <ng-template #itemTemplateAsignacion let-item>
+                                <a [innerHTML]="item.nombreAsignacion"></a>
+                            </ng-template>
+
+                            <ng-template #notFoundTemplateAsignacion let-notFound>
+                                <div [innerHTML]="notFound"></div>
+                            </ng-template>
+
+                            <div *ngIf="formBitacora.get('tituloCr').invalid && 
+                            (formBitacora.get('tituloCr').dirty || formBitacora.get('tituloCr').touched)"
+                                class="d-flex justify-content-center text-danger">
+                                <div *ngIf="formBitacora.get('tituloCr')?.errors?.required ">
+                                    *Seleccione un título.
+                                </div>
+                            </div>
+                            <div *ngIf="folio !== '' " class="text-center">
+                                {{folio}}
+                            </div>
+
+                        </div>
+                        <div class="col-4">
                             <div class="form-group">
                                 <label for="hora" class="label-family">Horas invertidas</label>
-                                <input type="number" class="form-control" #name formControlName="hora"
+                                <input type="number" class="form-control text-center" style="width: 6rem;" #name formControlName="hora"
                                     (keyup)="keyValidar(name.value);">
                                 <div *ngIf="formBitacora.get('hora').invalid && 
                                 (formBitacora.get('hora').dirty || formBitacora.get('hora').touched)"
                                     class=" text-danger">
                                     <div *ngIf="formBitacora.get('hora')?.errors?.required "
-                                        class="d-flex justify-content-center">
+                                        class="">
                                         *El campo es requerido.
                                     </div>
 
                                     <div *ngIf="formBitacora.get('hora')?.errors?.pattern "
-                                        class="d-flex justify-content-center">
+                                        class="d-flex justify-content-start">
                                         *Ingrese solo números.
                                     </div>
 
                                     <div *ngIf="formBitacora.get('hora')?.errors?.horaInvalida "
-                                        class="d-flex justify-content-center">
+                                        class="d-flex justify-content-start">
                                         *No puedes ingresar más de 8 horas diarias.
                                     </div>
 
                                     <div *ngIf="formBitacora.get('hora')?.errors?.mostrarHoraInvalida "
-                                        class="d-flex justify-content-center">
+                                        class="d-flex justify-content-start">
                                         {{ horasValidas.mensaje }}
                                     </div>
 
                                 </div>
                             </div>
                         </div>
-                        <div class="col-9">
+
+                    </div>
+
+
+                    <div class="row mt-3" *ngIf="mostrarNotas">
+
+                        <div class="col-12">
                             <div class="form-group">
                                 <label for="exampleFormControlTextarea1" class="label-family">Notas</label>
                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
                                     formControlName="notas"
                                     placeholder="Breve y clara descripción de la actividad realizada"></textarea>
-                                <div *ngIf="formBitacora.get('notas').invalid && 
-                                (formBitacora.get('notas').dirty || formBitacora.get('notas').touched)"
+
+                                <div *ngIf="formBitacora?.invalid && 
+                                (formBitacora?.dirty || formBitacora?.touched)"
                                     class=" text-danger">
-                                    <div *ngIf="formBitacora.get('notas')?.errors?.required "
+                                    <div *ngIf="formBitacora.errors?.notaRequerida"
                                         class="d-flex justify-content-center">
                                         *El campo es requerido.
                                     </div>
@@ -388,29 +400,24 @@
                     <div class="row mt-4">
 
                         <div class="col-8">
-                            <p class="text-danger">
+                            <p class="text-danger margin-left">
                                 {{horasFaltanter.mensaje}}
+                            </p>
+                            <p class="text-danger margin-left" >
+                                Esta información no podrá ser editada después de guardar
                             </p>
 
                         </div>
 
-                        <div class='col-4 d-flex justify-content-end'>
-                            <button class="btn btn-success ntn-save" [disabled]="formBitacora.invalid">
-
-                                GUARDAR
-
-                            </button>
-
-                        </div>
+                        
                     </div>
 
 
                     <div class="row">
-                        <div class="col-12">
-
-                            <p class="text-danger">
-                                Esta información no podrá ser editada después de guardar
-                            </p>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button class="btn btn-success ntn-save mb-3 margin-right" [disabled]="formBitacora.invalid">
+                                GUARDAR
+                            </button>
                         </div>
                     </div>
 
@@ -421,7 +428,7 @@
 
     <div class="item-2">
 
-        <form class="form-grid" [formGroup]="formReporte" (ngSubmit)="obtenerMes();" >
+        <form class="form-grid" [formGroup]="formReporte" (ngSubmit)="obtenerMes();">
 
             <button class="btn btn-secondary ntn-save" type="submit">
                 EXPORTAR
@@ -432,6 +439,8 @@
             </select>
 
         </form>
+        <div class="item-3">
+        </div>
     </div>
 
 </div>

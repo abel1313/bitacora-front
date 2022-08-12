@@ -3,6 +3,8 @@
 export interface ICrDTO{
 
     idCr: number;
-    nombreCrNombreAsignacion: string;
-    folioAsignacion: string;
+    nombreCr: string;
+    idAsig: number;
+    nombreAsignacion: string;
+    numeroAsignacion: string;
 }

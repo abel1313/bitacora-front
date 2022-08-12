@@ -78,7 +78,8 @@ export abstract class ServiceGenericoService {
 public solicitudPostDummyLogin(urlServicio: string, data: IUsuario): Observable<IUsuarioDto> {
   let usuario: IUsuarioDto = {
       id: 1,
-      usuario: data.usuario
+      usuario: data.usuario,
+      permiso: ''
   }
   return of(usuario)
 }

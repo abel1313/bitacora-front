@@ -12,8 +12,10 @@ export {
 } from './IActividad.models';
 
 export {
-    ISuper
+    ISuper,
+    ISuperMapper
 } from './ISuper.models';
+
 export {
     ICrDTO
 } from './ICrDTO.model';
@@ -36,6 +38,20 @@ MensajesPersonalizados
 export {
     IMostrarFecha
 } from './IMostrarFecha';
+
+
+export{
+    IAsignaciones
+}from './IAsignaciones.model';
+
+
+export {
+    IAsignacionAndCrDto,
+    ICrDTOAsig,
+    IAsignacionesDTO,
+    ICrDTOAsigMap,
+    ICrDTOAsignacionMap
+} from './IAsignacionAndCrDto';
 
 
 

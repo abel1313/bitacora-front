@@ -1,15 +1,26 @@
 import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { urlServer } from 'src/app/models/datos.enum';
 import { IRespuestGenerica } from 'src/app/models/IRespuestaGenerica';
-import { ICssButton, IMensajeMostrarSwal, MensajeSwal } from 'src/app/models/mensaje.mode';
-import { ServiceGenericoService } from 'src/app/services/service-generico.service';
-import Swal, { SweetAlertOptions } from 'sweetalert2';
+import { MensajeSwal } from 'src/app/models/mensaje.mode';
+import Swal from 'sweetalert2';
 import { IUsuario, IUsuarioDto } from '../../acceso/models';
 import { BitacoraService } from '../bitacora.service';
-import { IActividades, ICrDTO, IGenerarReporte, IGuardar, IMesesDTO, IMostrarFecha, IMostrarReporte, IRegistoActividad, MensajesPersonalizados, ValidatorsForm } from './models';
+import { 
+  IActividades, 
+  ICrDTO, 
+  ICrDTOAsigMap, 
+  ICrDTOAsignacionMap, 
+  IGenerarReporte, 
+  IGuardar, 
+  IMesesDTO, 
+  IMostrarFecha, 
+  IMostrarReporte, 
+  MensajesPersonalizados, 
+  ValidatorsForm } from './models';
+import { validarNotas } from './models/Validators.form';
 
 @Component({
   selector: 'app-generar-bitacora',
@@ -19,17 +30,10 @@ import { IActividades, ICrDTO, IGenerarReporte, IGuardar, IMesesDTO, IMostrarFec
 export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
 
-  keyword = 'nombreCrNombreAsignacion';
-  data = [
-     {
-       id: 1,
-       name: 'Usa'
-     },
-     {
-       id: 2,
-       name: 'England'
-     }
-  ];
+  keywordCr = 'nombreCrNombreAsignacion';
+  keywordAsignacion = 'nombreAsignacion';
+
+  idAsaignError = -1;
 
   subscription: Subscription;
   usuario: IUsuarioDto;
@@ -41,7 +45,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   generarReporte: IGenerarReporte = {
     index: 15,
     usuario: {
-      usuario: ''
+      usuario: '',
+      permiso: ''
     }
   }
 
@@ -64,7 +69,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   };
 
   iActividades: Array<IActividades> = [];
-  comboCr: Array<ICrDTO> = [];
+  comboCr: Array<ICrDTOAsigMap> = [];
+  autoCompeteAsignacion: Array<ICrDTOAsignacionMap> = [];
 
   mostraBoton: IMostrarReporte;
 
@@ -73,6 +79,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   mostrarReporte = false;
 
   mensaje: MensajesPersonalizados;
+  mostrarNotas: boolean;
 
   formBitacora: FormGroup;
 
@@ -88,6 +95,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.obtenerNombreUsuario();
 
     this.obtenerActividad();
+    this.getDataAsignacionDto();
     this.obtenerCr();
     this.mostraBoton = {
       mesesDto: [],
@@ -97,18 +105,6 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.mostrarBotonReporte();
   }
 
-  selectEvent(item) {
-    // do something with selected item
-  }
-
-  onChangeSearch(val: string) {
-    // fetch remote data from here
-    // And reassign the 'data' which is binded to 'data' property.
-  }
-  
-  onFocused(e){
-    // do something when input is focused
-  }
 
 
 
@@ -133,9 +129,9 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
           ValidatorsForm.validarActividad
         ]
       ],
-      cr: [0,
+      cr: ['',
         [
-          ValidatorsForm.validarCr
+          ValidatorsForm.validarCr,
         ]
       ],
       fecha:
@@ -153,16 +149,49 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
         ]
       ],
-      notas: ['', [Validators.required]],
-    });
+      notas: [''],
+      tituloCr: ['', [Validators.required] ],
+    }, {
+      validators: validarNotas
+    }
+      );
 
   }
+
+  selectEventCr(item: ICrDTO) {
+      const datosCr =this.autoCompeteAsignacion.find(f=>f.idAsig ===  item.idAsig );
+      this.formBitacora.get('tituloCr').setValue(datosCr);
+      this.mostrarNotas = item.idCr === 5 ;
+      if( item.idCr !== 5 ){
+       this.formBitacora.get('notas').setValue('');
+      }  
+  }
+  inputClearedCr(): void{
+    this.formBitacora.get('tituloCr').setValue('');
+  }
+
+  selectEventAsignacion(item: ICrDTOAsignacionMap) {
+
+    const datosAsig =this.comboCr.find(f=>f.idCr ===  item.idCr );
+    this.formBitacora.get('cr').setValue(datosAsig);
+
+    this.folio = item.numeroAsignacion !== '' ? `Folio ${item.numeroAsignacion}` : '';
+     this.mostrarNotas = item.idAsig === 59 ;
+     if( item.idAsig !== 59 ){
+      this.formBitacora.get('notas').setValue('');
+     }  
+  }
+
+  inputClearedAsignacion(): void{
+    this.formBitacora.get('cr').setValue('');
+  }
+
 
   keyValidar(hora: string) {
     this.formBitacora.updateValueAndValidity();
     const expresion = '[1-8]';
     const reg = new RegExp(expresion);
-    console.log("fechas   ",this.formBitacora.get('fecha').value !== '');
+    console.log("fechas   ", this.formBitacora.get('fecha').value !== '');
     if (hora! && reg.test(hora) && this.formBitacora.get('fecha').value !== '') {
       this.horasValida(parseInt(hora));
       console.log("Llegando ");
@@ -176,18 +205,18 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
       usuarioDto: this.usuario
     }
     this.subscription.add(
-      this.service.solicitudPost<IMostrarFecha, IValidarHora>(urlServer.HORAS_FALTANTES,mostrar).subscribe((respuesta)=>{
+      this.service.solicitudPost<IMostrarFecha, IValidarHora>(urlServer.HORAS_FALTANTES, mostrar).subscribe((respuesta) => {
         console.log(respuesta, " Respuesta ");
         this.horasFaltanter = respuesta;
-        if ( this.horasFaltanter.horasValidas ){
+        if (this.horasFaltanter.horasValidas) {
           Swal.fire({
             icon: 'info',
             title: 'Mensaje',
             text: this.horasFaltanter.mensaje,
             showConfirmButton: false
           });
-          
-        }else{
+
+        } else {
           Swal.fire({
             icon: 'warning',
             title: 'Mensaje',
@@ -195,9 +224,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
             showConfirmButton: false
           });
         }
-     
-      },(err)=>
-      {
+
+      }, (err) => {
         console.log(err)
       })
     );
@@ -206,12 +234,13 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.horasValida(this.formBitacora.get('hora').value);
   }
   changeFolio(): void {
-    const crt = this.comboCr.find(f => f.idCr == this.formBitacora.get('cr').value);
-    this.folio = crt.folioAsignacion !== '' ? `Folio ${crt.folioAsignacion}` : '';
+    // const crt = this.comboCr.find(f => f.crDTO.idCr == this.formBitacora.get('cr').value);
+    // this.folio = crt.folioAsignacion !== '' ? `Folio ${crt.folioAsignacion}` : '';
   }
 
   guardarRegistro(): void {
     MensajeSwal.mensajeResult(this.mensaje.mensajePerso()).then((mensajeCorrecto: boolean) => {
+      console.log("Se realizo ");
       this.guardarActividad();
     }).catch((mensajeCancelado: boolean) => {
 
@@ -221,10 +250,11 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
 
   obtenerMes(): void {
+    console.log(this.usuario);
     const mes = this.formReporte.value;
     this.generarReporte = {
       index: mes.seleccionarMes,
-      usuario: this.usuario
+      usuario: this.usuario,
     }
     this.subscription.add(
       this.service.solicitudPost<IGenerarReporte, any>(urlServer.GENERAR_REPORTE, this.generarReporte).subscribe((res: any) => {
@@ -272,6 +302,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
       this.usuario = JSON.parse(sessionStorage.getItem('sessionUsuario'));
       // this.formBitacora.get('colaborador').setValue(this.usuario.usuario);
       this.nombreUsuario = this.usuario.usuario;
+      
 
     } else {
       this._ngZone.run(() => this.router.navigateByUrl('login'));
@@ -280,17 +311,28 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
   }
 
-  private guardarActividad(): void{
-    this.guardar = this.formBitacora.value;
-    this.guardar.fecha = this.convertDate(new Date(this.guardar.fecha));
-    this.guardar.colaborador = this.formBitacora.get('colaborador').value;
-    this.guardar.usuario = this.usuario;
-
+  private guardarActividad(): void {
+console.log("avtividad 1" , this.formBitacora.value);
+const cr = this.formBitacora.get('cr').value;
+this.guardar = {
+  colaborador: this.formBitacora.get('colaborador').value,
+  actividad: this.formBitacora.get('actividad').value,
+  fecha: this.convertDate(new Date(this.formBitacora.get('fecha').value)),
+  cr: cr.id,
+  hora: this.formBitacora.get('hora').value,
+  notas: this.formBitacora.get('notas').value,
+  usuario: this.usuario
+}
+    
+console.log(this.guardar, " *************************** ");
 
     this.mostrarLoading = true;
+
     this.subscription.add(
       this.service.solicitudPost<IGuardar, IRespuestGenerica<IActividades>>
         (urlServer.GUARDAR_REGISTRO, this.guardar).subscribe((res) => {
+
+          console.log("Llegando ");
           if (res.code === 201) {
             Swal.fire({
               icon: 'success',
@@ -326,6 +368,7 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
           this.resetForm();
         }))
     );
+
   }
 
   private obtenerActividad(): void {
@@ -359,6 +402,22 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     );
   }
 
+  private getDataAsignacionDto(): void {
+    this.subscription.add(
+      this.service.getDataAsignacionDto(urlServer.COMBO_OBTENER_CRS).subscribe((complete) => {
+        this.autoCompeteAsignacion = complete;
+      }, (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Mensaje',
+          text: 'Ocurrío un error, intente de nuevo',
+          showConfirmButton: false
+        });
+      })
+    );
+  }
+
+
   private mostrarBotonReporte(): void {
     this.subscription.add(
       this.service.solicitudPost<IUsuarioDto, IMostrarReporte>(urlServer.MOSTRAR_BOTON_COMBO, this.usuario).subscribe((res) => {
@@ -376,9 +435,10 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
   private resetForm(): void {
     this.formBitacora.reset();
+    this.formBitacora.get('hora').setValue(1);
     this.formBitacora.get('colaborador').setValue(this.usuario.usuario);
     this.formBitacora.get('actividad').setValue(0);
-    this.formBitacora.get('cr').setValue(0);
+    this.formBitacora.get('cr').setValue('');
     this.formBitacora.get('fecha').setValue(this.fechaDia());
   }
   private convertDate(fecha: Date): string {
@@ -445,9 +505,15 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     );
   }
 
+  public validarNotaV(): ValidationErrors | null  { 
+    console.log(this.idAsaignError, " Asig ****************");
+    return this.idAsaignError !== 59 ? null : { notaRequerida: true};
+  }
+
   public validH(): ValidationErrors | null {
     return this.horasValidas! && !this.horasValidas.horasValidas ? null : { mostrarHoraInvalida: true };
   }
+
 
   private fechaDia(): string {
     const fecha = new Date();

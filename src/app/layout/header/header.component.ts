@@ -13,6 +13,7 @@ import { ServiceGenericoService } from 'src/app/services/service-generico.servic
 export class HeaderComponent implements OnInit, OnDestroy {
   usuario: IUsuarioDto = {
     usuario:'',
+    permiso: ''
   };
   subscription: Subscription;
 

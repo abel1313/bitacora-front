@@ -45,7 +45,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginCuadro(): void{
     this.cambiarStyleLogin = true;
-    console.log("Dsite ", this.cambiarStyleLogin);
   }
   accederSIstema(): void {
 
@@ -67,6 +66,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.service.solicitudPost<IUsuario,IUsuarioDto>(urlServer.LOGIN, usu)
         .subscribe((res: IUsuarioDto) => {
 
+          console.log(res, " Restaurando ");
           if( res.id != 0 ){
             Swal.fire({
               title: `Bienvenido ${res.usuario}`,

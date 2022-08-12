@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors } from "@angular/forms";
+import { AbstractControl, ValidationErrors, Validators } from "@angular/forms";
 import Swal from "sweetalert2";
 
 
@@ -55,4 +55,20 @@ export class ValidatorsForm{
         }
         return hora > 0 && hora < 9 ? null : { horaInvalida: true} ;
     }
+}
+
+export const validarNotas: ValidationErrors = (control: AbstractControl): ValidationErrors | null =>{
+    const validarNota = control.get('tituloCr').value;
+    const validarcr = control.get('cr').value;
+    const valueNota = control.get('notas').value;
+    let valid = false;
+
+    
+    if( validarNota!== null ){
+        valid = (  validarNota.idAsig === 59 && valueNota !== ''  ) ||  
+        (  validarNota.idCr === 5 && valueNota !== ''  ) || (validarNota.idAsig !== 59 && validarNota.idCr !== 5) ; 
+    }
+
+
+    return ( valid ) ? null : { notaRequerida: true} ;
 }
