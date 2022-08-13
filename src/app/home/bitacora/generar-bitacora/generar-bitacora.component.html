@@ -1,4 +1,4 @@
-<div *ngIf="flase" class="row mt-4">
+<!-- <div *ngIf="flase" class="row mt-4">
     <div [ngClass]="mostraBoton.mostrarBoton ? 'col-7 offset-1' : 'col-7 mx-auto' ">
         <form [formGroup]="formBitacora" (ngSubmit)="guardarRegistro();">
             <div class=" opacity-style">
@@ -15,7 +15,7 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col-6">
-                                <div class="form-group">
+                                <div class="form-group " style="margin-right: 15px;">
                                     <label for="colaborador" class="label-family">Colaborador</label>
                                     <input type="text" class="form-control" formControlName="colaborador"
                                         [value]="nombreUsuario">
@@ -197,7 +197,7 @@
             </div>
         </form>
     </div>
-</div>
+</div> -->
 
 
 
@@ -217,7 +217,7 @@
                         <div class="col-4">
                             <div class="form-group">
                                 <label for="colaborador" class="label-family">Colaborador</label>
-                                <input type="text" class="form-control" formControlName="colaborador"
+                                <input type="text" class="form-control label-family" formControlName="colaborador"
                                     [value]="nombreUsuario">
                                 <div *ngIf="formBitacora.get('colaborador').invalid && 
                                 (formBitacora.get('colaborador').dirty || formBitacora.get('colaborador').touched)"
@@ -233,7 +233,7 @@
                         </div>
                         <div class="col-4">
                             <label for="actividad" class="label-family">Actividad</label>
-                            <select class="form-control" formControlName="actividad">
+                            <select class="form-control label-family" formControlName="actividad">
                                 <ng-container *ngFor="let actividad of iActividades">
                                     <option class="form-control" selected [value]="actividad.id">{{actividad.nombre}}
                                     </option>
@@ -250,8 +250,8 @@
 
                         <div class="col-4">
                             <div class="form-group">
-                                <label for="colaborador" class="label-family">Fecha</label>
-                                <input type="date" class="form-control" style="width: 10rem;" formControlName="fecha"
+                                <label for="fecha" class="label-family">Fecha</label>
+                                <input type="date" id="fecha" class="form-control label-family" style="width: 10rem;" formControlName="fecha"
                                     (change)="updateDate();">
                                 <div *ngIf="formBitacora.get('fecha').invalid && 
                                 (formBitacora.get('fecha').dirty || formBitacora.get('fecha').touched)"
@@ -275,11 +275,11 @@
                     <div class="row mt-2 mt-3">
                   
                         <div class="col-4 style-auto">
-                            <label for="cr"> CR</label>
+                            <label for="cr"  class="label-family"> CR</label>
                         
                             <ngx-autocomplete id="cr" 
                             formControlName="cr"
-                            class="form-control"
+                            class="form-control label-family"
                             [data]="comboCr" [searchOnProperty]="keywordCr"
                                 (selected)='selectEventCr($event)' 
                                 (inputCleared)="inputClearedCr();"
@@ -309,10 +309,10 @@
 
                         <div class="col-4">
                             
-                            <label for="autocomplete"> Título CR</label>
+                            <label for="autocomplete" class="label-family"> Título CR</label>
                             <ngx-autocomplete id="autocomplete"
                             formControlName="tituloCr"
-                            class="form-control" [data]="autoCompeteAsignacion" 
+                            class="form-control label-family" [data]="autoCompeteAsignacion" 
                             [searchOnProperty]="keywordAsignacion"
                             (inputCleared)="inputClearedAsignacion();"
                                 (selected)='selectEventAsignacion($event)' [itemTemplate]="itemTemplateAsignacion"
@@ -340,11 +340,11 @@
                             </div>
 
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="form-group">
                                 <label for="hora" class="label-family">Horas invertidas</label>
-                                <input type="number" class="form-control text-center" style="width: 6rem;" #name formControlName="hora"
-                                    (keyup)="keyValidar(name.value);">
+                                <input type="number" class="form-control text-center label-family" #name formControlName="hora"
+                                    (keyup)="keyValidar(name.value);" style="width: 6rem;">
                                 <div *ngIf="formBitacora.get('hora').invalid && 
                                 (formBitacora.get('hora').dirty || formBitacora.get('hora').touched)"
                                     class=" text-danger">
@@ -430,7 +430,7 @@
 
         <form class="form-grid" [formGroup]="formReporte" (ngSubmit)="obtenerMes();">
 
-            <button class="btn btn-secondary ntn-save" type="submit">
+            <button class="btn btn-secondary " style="margin-right: 10px;" type="submit">
                 EXPORTAR
             </button>
             <select class="form-control text-center" formControlName="seleccionarMes">

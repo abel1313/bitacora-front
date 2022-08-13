@@ -1,11 +1,13 @@
 
-.ntn-save{
-    font-family: 'Tiro Gurmukhi', serif;
-    background-color: #78c5b5;
-    border: none;
+// .ntn-save{
+//     font-family: 'Tiro Gurmukhi', serif;
+//     background-color: #78c5b5;
+//     border: none;
+// }
+
+.label-family{
+margin-left: 25px;
 }
-
-
 .opacity-style{
     border-radius: 7px;
     background-color: rgb(255,255, 255,0.5);
@@ -39,7 +41,7 @@
 
 .form-grid{
     display: grid; 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 9rem;
     margin: auto;
     
 }

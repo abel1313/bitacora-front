@@ -10,14 +10,12 @@ export class ValidatorsForm{
         return control.value != 0 ? null : { actividadInvalida: true} ;
     }
     public static validarCorreo(control: AbstractControl): ValidationErrors | null{
-        console.log("antes ", control.value);
 
         const coreoValid = '^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,3}';
         const tieneArroa = '[@]';
         const regArroba = RegExp(tieneArroa);
         const reg = RegExp(coreoValid);
         if( regArroba.test(control.value) ){
-                console.log( regArroba.test(control.value), " Arroba ");
                 return  !reg.test(control.value) ?  { correoInvalido: true}: null;
             
         }
@@ -43,7 +41,10 @@ export class ValidatorsForm{
     }
 
     public static validarHora(control: AbstractControl): ValidationErrors | null{
+
+        console.log(control.value, " Vlaueeeeee ");
         const hora = control.value;
+
         if(  hora > 8){
             Swal.fire({
                 position: 'center',
@@ -62,11 +63,11 @@ export const validarNotas: ValidationErrors = (control: AbstractControl): Valida
     const validarcr = control.get('cr').value;
     const valueNota = control.get('notas').value;
     let valid = false;
-
+console.log(control);
     
     if( validarNota!== null ){
-        valid = (  validarNota.idAsig === 59 && valueNota !== ''  ) ||  
-        (  validarNota.idCr === 5 && valueNota !== ''  ) || (validarNota.idAsig !== 59 && validarNota.idCr !== 5) ; 
+        valid = (  validarNota.idAsig === 1 && valueNota !== ''  ) ||  
+        (  validarNota.idCr === 1 && valueNota !== ''  ) || (validarNota.idAsig !== 1 && validarNota.idCr !== 1) ; 
     }
 
 

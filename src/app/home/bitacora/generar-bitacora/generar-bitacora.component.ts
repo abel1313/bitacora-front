@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { urlServer } from 'src/app/models/datos.enum';
 import { IRespuestGenerica } from 'src/app/models/IRespuestaGenerica';
 import { MensajeSwal } from 'src/app/models/mensaje.mode';
+import { ServiceGenericoService } from 'src/app/services/service-generico.service';
 import Swal from 'sweetalert2';
 import { IUsuario, IUsuarioDto } from '../../acceso/models';
 import { BitacoraService } from '../bitacora.service';
@@ -85,7 +86,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
 
   formReporte: FormGroup;
   constructor(
-    private readonly service: BitacoraService,
+    private readonly service: ServiceGenericoService,
+    private readonly servicioBitacora: BitacoraService,
     private readonly fb: FormBuilder,
     private readonly router: Router,
     private readonly _ngZone: NgZone
@@ -161,8 +163,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
   selectEventCr(item: ICrDTO) {
       const datosCr =this.autoCompeteAsignacion.find(f=>f.idAsig ===  item.idAsig );
       this.formBitacora.get('tituloCr').setValue(datosCr);
-      this.mostrarNotas = item.idCr === 5 ;
-      if( item.idCr !== 5 ){
+      this.mostrarNotas = item.idCr === 1 ;
+      if( item.idCr !== 1 ){
        this.formBitacora.get('notas').setValue('');
       }  
   }
@@ -176,8 +178,8 @@ export class GenerarBitacoraComponent implements OnInit, OnDestroy {
     this.formBitacora.get('cr').setValue(datosAsig);
 
     this.folio = item.numeroAsignacion !== '' ? `Folio ${item.numeroAsignacion}` : '';
-     this.mostrarNotas = item.idAsig === 59 ;
-     if( item.idAsig !== 59 ){
+     this.mostrarNotas = item.idAsig === 1 ;
+     if( item.idAsig !== 1 ){
       this.formBitacora.get('notas').setValue('');
      }  
   }
@@ -374,7 +376,7 @@ console.log(this.guardar, " *************************** ");
   private obtenerActividad(): void {
 
     this.subscription.add(
-      this.service.getDataActividadDto(urlServer.COMBO_OBTENER_ACTIVIDADES).subscribe((actividades) => {
+      this.servicioBitacora.getDataActividadDto(urlServer.COMBO_OBTENER_ACTIVIDADES).subscribe((actividades) => {
         this.iActividades = actividades;
       }, (err) => {
         Swal.fire({
@@ -389,7 +391,7 @@ console.log(this.guardar, " *************************** ");
 
   private obtenerCr(): void {
     this.subscription.add(
-      this.service.getDataCrsDto(urlServer.COMBO_OBTENER_CRS).subscribe((crs) => {
+      this.servicioBitacora.getDataCrsDto(urlServer.COMBO_OBTENER_CRS).subscribe((crs) => {
         this.comboCr = crs;
       }, (error) => {
         Swal.fire({
@@ -404,7 +406,7 @@ console.log(this.guardar, " *************************** ");
 
   private getDataAsignacionDto(): void {
     this.subscription.add(
-      this.service.getDataAsignacionDto(urlServer.COMBO_OBTENER_CRS).subscribe((complete) => {
+      this.servicioBitacora.getDataAsignacionDto(urlServer.COMBO_OBTENER_CRS).subscribe((complete) => {
         this.autoCompeteAsignacion = complete;
       }, (error) => {
         Swal.fire({
@@ -506,7 +508,6 @@ console.log(this.guardar, " *************************** ");
   }
 
   public validarNotaV(): ValidationErrors | null  { 
-    console.log(this.idAsaignError, " Asig ****************");
     return this.idAsaignError !== 59 ? null : { notaRequerida: true};
   }
 

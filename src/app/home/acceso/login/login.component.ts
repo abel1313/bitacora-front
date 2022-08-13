@@ -98,7 +98,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           Swal.fire({
             icon: 'error',
             title: 'Mensaje',
-            text: error.error.message ,
+            text: "Ocurrío un error, intentar más tarde",
             showConfirmButton: false
           });
         })

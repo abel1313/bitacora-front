@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  url: ''
+  AE_API_URL: 'Prod',
+  PROFILE: 'prod'
 };
